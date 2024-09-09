@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/styles/details.css">
+    <title>Details Page</title>
+</head>
+<body>
+    <header>
+        <marquee behavior="" direction="">Infos About {{.Name}}</marquee>
+    </header>
+    <div class="container">
+        <div class="userinfos">
+            <h2  class="cc">The creation date is:</h2>
+            <p>{{.CreationDate}}</p>
+            <h2  class="cc">The members are:</h2>
+                {{range .Members}}
+                    <p>{{.}}</p>
+                {{end}}
+            <h2  class="cc">The first album is:</h2>
+            <p>{{.FirstAlbum}}</p>
+       </div>
+
+       <div class="userinfos">
+            <h2  class="cc">The Dates of concerts are:</h2>
+            {{range .Dates}}
+            <p>{{.}}</p>
+            {{end}}
+        </div>
+       
+       <div class="userinfos">
+            <h1 class="cc">Relations:</h1>
+            {{range $key, $value := .Relations}}
+                    <h3 class="cc">{{ $key }}:</h3>
+                    {{range $value}}
+                    <p>{{.}}</p>
+                    {{end}}
+            {{end}}
+        </div>
+
+        <div class="userinfos">
+            <h1 class="cc">locasations:</h1>
+            {{range .Localisations}}
+                <p>{{.}}</p>
+            {{end}}
+        </div>
+        
+    </div>
+    <div class="center-button">
+        <a href="/"><button  class="return-button">Return</button></a><br>
+    </div>
+</body>
+</html>

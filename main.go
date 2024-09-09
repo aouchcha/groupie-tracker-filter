@@ -1,0 +1,22 @@
+package main
+
+import (
+	"fmt"
+	"net/http"
+	"time"
+
+	f "groupie-tracker-filter/functions"
+)
+
+func main() {
+	start := time.Now()
+	f.FitchAllData()
+	fmt.Println(time.Since(start))
+	http.HandleFunc("/styles/", f.ServeStyle)
+	http.HandleFunc("/", f.FirstPage)
+	http.HandleFunc("/suggest", f.SuggestHandler)
+	http.HandleFunc("/artist", f.OtherPages)
+	http.HandleFunc("/search", f.SearchPage)
+	fmt.Println("http://localhost:9376")
+	http.ListenAndServe(":9376", nil)
+}

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/styles/home.css">
+    <title>Welcome</title>
+</head>
+<body>
+    <header>
+        <marquee behavior="" direction="">Artist</marquee>
+    </header>
+    <form name="myForm" action="/search" method="post">
+    <div class="search-bar">
+        <div class="filter">
+            <h1 style="color: aliceblue;">FILTRE</h1>
+           <div class="range">
+                <p style="color: aliceblue;">Choose the year:</p>
+                <input type="range" name="years-range" id="years-range" min="0" max="2024" onclick="disalowinput()" >
+                <!-- <input type="range" name="years-range" id="years-range" min="0" max="2024" onclick="disalowinput()" > -->
+                <p id="demo" style="color: aliceblue;"></p>
+           </div>
+           <div class="memm">
+                <p style="color: aliceblue;">Members number:</p>
+                <input type="checkbox" name="member-radio" id="1" value="1" class=""  onclick="disalowinput()">
+                <label for="1" style="color: aliceblue;">1</label>
+                <input type="checkbox" name="member-radio" id="2" value="2"  onclick="disalowinput()">
+                <label for="2" style="color: aliceblue;">2</label>
+                <input type="checkbox" name="member-radio" id="3" value="3"  onclick="disalowinput()">
+                <label for="3" style="color: aliceblue;">3</label>
+                <input type="checkbox" name="member-radio" id="4" value="4"  onclick="disalowinput()">
+                <label for="4" style="color: aliceblue;">4</label>
+                <input type="checkbox" name="member-radio" id="5" value="5"  onclick="disalowinput()">
+                <label for="5" style="color: aliceblue;">5</label>
+                <input type="checkbox" name="member-radio" id="6" value="6"  onclick="disalowinput()">
+                <label for="6" style="color: aliceblue;">6</label>
+                <input type="checkbox" name="member-radio" id="7" value="7"  onclick="disalowinput()">
+                <label for="7" style="color: aliceblue;">7</label>
+                <input type="checkbox" name="member-radio" id="8" value="8"  onclick="disalowinput()">
+                <label for="8" style="color: aliceblue;">8</label>
+                <button type="submit" name="project" value="filtre" >Filtre</button>
+           </div>
+        </div>
+        <div class="search">
+            <h1 style="color: aliceblue;">SEARCH</h1>
+            <input type="text" placeholder="Enter something ..." name="search" class="search-input" id="search-input" autocomplete="off"><br>
+            <div id="suggestions" class="suggestions"></div>
+            <label for="typessearch">Choose what you want to search for: </label>
+            <select name="typessearch" id="typessearch">
+                <option value="Band" id="Band">Band Name</option>
+                <option value="Members" id="Members">Members</option>
+                <option value="location" id="location">Locations</option>
+                <option value="firstalbum" id="firstalbum">First Album Date</option>
+                <option value="creation" id="creation">Creation Date</option>
+            </select>
+            <br>
+            <button type="submit" name="project" value="search">Search</button>
+        </div>
+    </div>
+</form>
+    <div class="artistcontainer">
+        {{range .}}
+        <a class="artist" href="/artist?ID={{.ID}}">
+            <img class="imge" src="{{.Image}}" alt="Artist Image"><br>
+            <strong>{{.Name}}</strong>
+        </a>
+        {{end}}
+    </div>
+   
+
+    <script>
+       
+        document.getElementById("search-input").addEventListener('input', function() {myFunc(this.value);});
+        const res = document.getElementById("suggestions");
+
+       
+        function myFunc(val) {
+            if (document.getElementById("search-input").value === ''){
+                res.innerHTML = ''
+                return
+            }
+            fetch(`/suggest?userinput=${val}`)
+                .then(response => response.text())
+                .then(data => {
+                    const test = data.split("\n");
+                    let final = "";
+
+                    for (let i = 0; i < test.length; i++) {
+                        final += `<div class="suggestion-item">${test[i]}</div>`;
+                    }
+
+                    res.innerHTML = final;
+
+                    const suggestionItems = document.getElementsByClassName("suggestion-item");
+
+                for(let c of suggestionItems) {
+                        c.addEventListener("click", function() {myFunc2(c.textContent);});
+                    }
+                });
+                }
+
+
+        function myFunc2(element) {
+            document.getElementById("search-input").value = element;
+            res.innerHTML = '';
+        }
+
+        const years = document.getElementById("years-range")
+        const check = document.querySelectorAll('input[type=checkbox]')
+        const types = document.getElementById("typessearch")
+        let val = document.getElementById("demo")
+        val.innerHTML=years.value+ " - 2024"
+        years.addEventListener("input", function(){Printvalue(years)})
+        function Printvalue(y) {
+            val.innerHTML = y.value + " - 2024"
+        }
+        
+
+        function disalowinput(){
+            let ischeck = false
+           for (let element of check){
+            if (element.checked === true){
+                ischeck = true
+                break
+            }
+           }
+           if (ischeck || years.value != "1012"){
+            document.getElementById("search-input").disabled = true;
+            if (years.value == "1012") {
+                types.innerHTML = ' <option value="Band" id="Band">Band Name</option>'+
+                '<option value="firstalbum" id="firstalbum">First Album Date</option>'+
+                    '<option value="creation" id="creation">Creation Date</option>'
+            }else{
+                 types.innerHTML = ' <option value="firstalbum" id="firstalbum">First Album Date</option>'+
+                    '<option value="creation" id="creation">Creation Date</option>'
+            }
+           }else{
+            document.getElementById("search-input").disabled = false;
+            types.innerHTML = '<option value="Band" id="Band">Band Name</option>' +
+                '<option value="Members" id="Members">Members</option>' +
+                '<option value="location" id="location">Locations</option>' +
+                '<option value="firstalbum" id="firstalbum">First Album Date</option>' +
+                '<option value="creation" id="creation">Creation Date</option>';
+           }
+        }
+
+    </script>
+     <footer>
+        <p>Author: Achraf OUCHCHATE</p>
+        <p>Github: aouchcha</p>
+        <p>Email: ouchchatea@gmail.com</p>
+    </footer>
+</body>
+</html>

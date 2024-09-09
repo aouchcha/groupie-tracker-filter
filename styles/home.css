@@ -1,0 +1,128 @@
+body{
+    background:black;
+    color:#000000;
+    margin: 0%;
+    padding: 0%;
+    height: 100vh;
+}
+.artistcontainer{
+    margin: 5% 0%;
+    padding: 0%;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+} 
+
+a{
+    text-decoration: none; 
+    color: inherit;
+}
+
+.artist{
+    text-align: center;
+    border: 2px solid black;
+    margin: 1% 2%;
+    background: black;
+}
+
+header{
+    background: #102e0c;
+    color: #ffffff;
+    width: 98%;
+    margin-bottom: 0%;
+    padding: 1%;
+}
+
+strong{
+    font-size: larger;
+    color: #ffffffe1;
+}
+
+.imge{
+    width: 100%;
+    opacity: .5;
+} 
+
+.imge:hover{
+    transform: scale(1.22);
+    opacity: 1;
+    transition-duration: .5s;
+    border: #ffffff solid 2px;
+}
+
+.search-bar{
+    width: 98%;
+    display: flex;
+    justify-content: space-between;
+    margin : 0 0 ;
+    padding: 0 0 ;
+    /* background-color: rgba(255, 255, 255, 0.144); */
+}
+
+/* .search{
+    display: inline;
+    justify-content: space-around;
+} */
+
+/* .filter{
+    display: flex;
+    justify-content: space-between;
+
+} */
+
+.search-input{
+    width: 30%;
+}
+
+.range{
+    display: flexx;
+}
+
+/* .memm{
+     display: flex;
+    justify-content: space-between;
+} */
+
+.suggestions {
+    border: 1px solid rgb(0, 0, 0);
+    max-height: 150px;
+    overflow-y: auto;
+    position: absolute;
+    background-color: white;
+    width: fit-content;
+    z-index: 1;
+    /* margin-top: 30px; */
+}
+
+ .suggestion-item {
+    padding: 3px;
+    cursor: pointer;
+}
+
+.suggestion-item:hover {
+    background-color: #f0f0f0;
+}
+
+.search-bar {
+    /* position: relative; */
+    margin: 20px;
+}
+
+marquee{
+    font-size: 32px;
+    font-weight: 700;
+}
+footer{
+    display: flex;
+    justify-content: space-between;
+    background: #102e0c;
+    color: #ffffff;
+    margin-bottom: 0%;
+    padding: 1%;
+}
+
+@media ( max-width: 530px) {
+    .artistcontainer{
+        margin : 5% 20%;
+    }
+}

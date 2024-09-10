@@ -10,16 +10,17 @@
     <header>
         <marquee behavior="" direction="">Artist</marquee>
     </header>
-    <form name="myForm" action="/search" method="post">
     <div class="search-bar">
+    <form action="/filtre" method="post">
         <div class="filter">
             <h1 style="color: aliceblue;">FILTRE</h1>
-           <div class="range">
-                <p style="color: aliceblue;">Choose the year:</p>
-                <input type="range" name="years-range" id="years-range" min="0" max="2024" onclick="disalowinput()" >
-                <!-- <input type="range" name="years-range" id="years-range" min="0" max="2024" onclick="disalowinput()" > -->
-                <p id="demo" style="color: aliceblue;"></p>
-           </div>
+            <p style="color: aliceblue;">Choose the year:</p>
+            <div class="ff">
+                <div class="prog"></div>
+                <input type="range" id="years-range-min" class="range-min" name="creation" min="1958" max="2018" value="1800" onclick="disalowinput()">
+                <input type="range" id="years-range-max" class="range-max" name="creation" min="1958" max="2018" value="2024" onclick="disalowinput()">
+            </div>
+            <p id="demo" style="color: aliceblue;"></p>
            <div class="memm">
                 <p style="color: aliceblue;">Members number:</p>
                 <input type="checkbox" name="member-radio" id="1" value="1" class=""  onclick="disalowinput()">
@@ -37,15 +38,27 @@
                 <input type="checkbox" name="member-radio" id="7" value="7"  onclick="disalowinput()">
                 <label for="7" style="color: aliceblue;">7</label>
                 <input type="checkbox" name="member-radio" id="8" value="8"  onclick="disalowinput()">
-                <label for="8" style="color: aliceblue;">8</label>
-                <button type="submit" name="project" value="filtre" >Filtre</button>
+                <label for="8" style="color: aliceblue;">8</label><br>
+                <input type="text" placeholder="Enter something ..." id="filter_input" name="filter_input" autocomplete="off"><br>
+                <label for="type_filtre" style="color: aliceblue;">Choose what you want to search for: </label>
+            <select name="type_filtre" id="type_filtre">
+                <option value="Band" id="Band">Band Name</option>
+                <option value="location" id="location">Locations</option>
+                <option value="firstalbum" id="firstalbum">First Album Date</option>
+                <option value="creation" id="creation">Creation Date</option>
+                <option value="both" id="both">both Date</option>
+
+            </select><br>
+                <button type="submit" name="project" value="filtre" id="filter_button">Filtre</button>
            </div>
         </div>
+    </form>
+    <form action="/search" method="post">
         <div class="search">
             <h1 style="color: aliceblue;">SEARCH</h1>
             <input type="text" placeholder="Enter something ..." name="search" class="search-input" id="search-input" autocomplete="off"><br>
             <div id="suggestions" class="suggestions"></div>
-            <label for="typessearch">Choose what you want to search for: </label>
+            <label for="typessearch" style="color: aliceblue;">Choose what you want to search for: </label>
             <select name="typessearch" id="typessearch">
                 <option value="Band" id="Band">Band Name</option>
                 <option value="Members" id="Members">Members</option>
@@ -54,10 +67,10 @@
                 <option value="creation" id="creation">Creation Date</option>
             </select>
             <br>
-            <button type="submit" name="project" value="search">Search</button>
+            <button type="submit" name="project" value="search" id="search_button">Search</button>
         </div>
-    </div>
-</form>
+    </form>
+</div>
     <div class="artistcontainer">
         {{range .}}
         <a class="artist" href="/artist?ID={{.ID}}">
@@ -77,8 +90,10 @@
         function myFunc(val) {
             if (document.getElementById("search-input").value === ''){
                 res.innerHTML = ''
+                document.getElementById("filter_button").disabled = false
                 return
             }
+            document.getElementById("filter_button").disabled = true
             fetch(`/suggest?userinput=${val}`)
                 .then(response => response.text())
                 .then(data => {
@@ -104,15 +119,33 @@
             document.getElementById("search-input").value = element;
             res.innerHTML = '';
         }
+        document.getElementById("filter_input").addEventListener("input", function(){turnoff(this.value)});
 
-        const years = document.getElementById("years-range")
+        function turnoff(val) {
+            if (val ==="") {
+                document.getElementById("search_button").disabled = false
+                return
+            }
+            document.getElementById("search_button").disabled = true;
+        }
+
+        const min_years = document.getElementById("years-range-min")
+        const max_years = document.getElementById("years-range-max")
         const check = document.querySelectorAll('input[type=checkbox]')
         const types = document.getElementById("typessearch")
         let val = document.getElementById("demo")
-        val.innerHTML=years.value+ " - 2024"
-        years.addEventListener("input", function(){Printvalue(years)})
-        function Printvalue(y) {
-            val.innerHTML = y.value + " - 2024"
+        val.innerHTML = "1958 - 2018"
+        min_years.addEventListener("input", function(){
+            Printvalue()
+            ChangeMin()
+        })
+        max_years.addEventListener("input", function(){
+            Printvalue()
+            ChangeMax()
+        })
+
+        function Printvalue() {
+            val.innerHTML = min_years.value + "-" + max_years.value
         }
         
 
@@ -124,24 +157,27 @@
                 break
             }
            }
-           if (ischeck || years.value != "1012"){
-            document.getElementById("search-input").disabled = true;
-            if (years.value == "1012") {
-                types.innerHTML = ' <option value="Band" id="Band">Band Name</option>'+
-                '<option value="firstalbum" id="firstalbum">First Album Date</option>'+
-                    '<option value="creation" id="creation">Creation Date</option>'
-            }else{
-                 types.innerHTML = ' <option value="firstalbum" id="firstalbum">First Album Date</option>'+
-                    '<option value="creation" id="creation">Creation Date</option>'
-            }
-           }else{
-            document.getElementById("search-input").disabled = false;
-            types.innerHTML = '<option value="Band" id="Band">Band Name</option>' +
-                '<option value="Members" id="Members">Members</option>' +
-                '<option value="location" id="location">Locations</option>' +
-                '<option value="firstalbum" id="firstalbum">First Album Date</option>' +
-                '<option value="creation" id="creation">Creation Date</option>';
-           }
+        if (ischeck || (min_years.value != "1958" || max_years.value != "2018")){
+            document.getElementById("search_button").disabled = true
+        }else{
+            document.getElementById("search_button").disabled = false
+        }
+        }
+
+        const styl = document.querySelector(".ff")
+        const prog = document.querySelector(".prog")
+        let max = 2018-1958
+        function ChangeMin(){
+            let temp = max_years.getAttribute("max") - min_years.value
+            let temp2 = (temp/max)*100
+            prog.style.left = 100-temp2 + "%"
+        }
+        function ChangeMax(){
+           
+            let temp = max_years.value - min_years.getAttribute("min")
+            let temp2 = (temp/max)*100
+            prog.style.right = 100-temp2 + "%"
+
         }
 
     </script>

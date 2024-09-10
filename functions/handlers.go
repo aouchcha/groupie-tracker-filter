@@ -32,7 +32,6 @@ func ServeStyle(w http.ResponseWriter, r *http.Request) {
 }
 
 func FirstPage(w http.ResponseWriter, r *http.Request) {
-
 	tmpl, err := template.ParseFiles("templates/welcome.html")
 	tmpl1, err2 := template.ParseFiles("templates/errors.html")
 
@@ -162,69 +161,28 @@ func OtherPages(w http.ResponseWriter, r *http.Request) {
 }
 
 func SearchPage(w http.ResponseWriter, r *http.Request) {
-	tmpl, _ := template.ParseFiles("./templates/search.html")
-	tmpl1, _ := template.ParseFiles("templates/errors.html")
+	tmpl, err := template.ParseFiles("./templates/search.html")
+	tmpl1, err1 := template.ParseFiles("templates/errors.html")
+	if err != nil || err1 != nil {
+		if err1 != nil {
+			http.Error(w, "Internal Server Error", 500)
+			return
+		} else {
+			ChooseError(w, 500)
+			tmpl1.Execute(w, Error)
+			return
+		}
+	}
 	if r.Method != http.MethodPost {
 		ChooseError(w, 405)
 		tmpl1.Execute(w, Error)
 		return
 	}
-	project := r.FormValue("project")
-	var types, years_range, text string
-	var membernumber []string
-	var min, max int
-	var check = false
-	// fmt.Println(project)
+	var types, text string
 	types = r.FormValue("typessearch")
-	if project == "search" {
-		text = strings.ToLower(r.FormValue("search"))
-		temp := strings.Split(text, "->")
-		text = temp[0]
-	} else if project == "filtre" {
-		check = true
-		years_range = r.FormValue("years-range")
-		membernumber = r.Form["member-radio"]
-		if len(membernumber) == 0 && years_range == "1012" {
-			ChooseError(w, 400)
-			tmpl1.Execute(w, Error)
-			return
-		} else if len(membernumber) != 0 && years_range == "1012" {
-			if len(membernumber) == 1 {
-				max, _ = strconv.Atoi(membernumber[0])
-				min = max
-			} else {
-				min, _ = strconv.Atoi(membernumber[0])
-				max, _ = strconv.Atoi(membernumber[len(membernumber)-1])
-			}
-			years_range = "1000"
-			types = "Band"
-		} else if len(membernumber) == 0 && years_range != "1012" {
-			min = 1
-			max = 8
-		} else {
-			if len(membernumber) == 1 {
-				max, _ = strconv.Atoi(membernumber[0])
-				min = max
-			} else {
-				min, _ = strconv.Atoi(membernumber[0])
-				max, _ = strconv.Atoi(membernumber[len(membernumber)-1])
-			}
-		}
-		text = years_range
-	}
-
-	fmt.Println(min, max)
-	fmt.Println(check)
-	fmt.Println(years_range)
-	fmt.Println(membernumber)
-	// if err != nil {
-	// 	ChooseError(w, 400)
-	// 	tmpl1.Execute(w, Error)
-	// 	return
-	// }
-	// fmt.Println(years_range)
-	// fmt.Println(check)
-	// fmt.Println(doublecheck)
+	text = strings.ToLower(r.FormValue("search"))
+	temp := strings.Split(text, "->")
+	text = temp[0]
 	fmt.Println(types)
 	fmt.Println(text)
 
@@ -237,91 +195,65 @@ func SearchPage(w http.ResponseWriter, r *http.Request) {
 
 	var ss []Artist
 	fmt.Println(ss)
-	if check {
+	if types == "Band" {
 		for i := range artists {
-			if len(artists[i].Members) >= min && len(artists[i].Members) <= max {
-				fmt.Println(len(artists[i].Members))
-				if types == "firstalbum" {
-					temp := strings.Split(artists[i].FirstAlbum, "-")
-					val, _ := strconv.Atoi(temp[len(temp)-1])
-					val2, _ := strconv.Atoi(text)
-					if val >= val2 {
-						ss = append(ss, artists[i])
-					}
-				} else if types == "creation" {
-					val, _ := strconv.Atoi(text)
-					if val <= artists[i].CreationDate {
-						ss = append(ss, artists[i])
-					}
-				} else {
+			if strings.HasPrefix(strings.ToLower(artists[i].Name), text) {
+				ss = append(ss, artists[i])
+			}
+		}
+	} else if types == "firstalbum" || types == "creation" {
+		if types == "firstalbum" {
+			for i := range artists {
+				temp := strings.Split(artists[i].FirstAlbum, "-")
+				val, _ := strconv.Atoi(temp[len(temp)-1])
+				val2, _ := strconv.Atoi(text)
+
+				fmt.Println("first album check false")
+
+				if val >= val2 {
+					ss = append(ss, artists[i])
+				}
+
+			}
+		}
+		if types == "creation" {
+			val, _ := strconv.Atoi(text)
+			for i := range artists {
+
+				fmt.Println(val)
+				if val <= artists[i].CreationDate {
+					ss = append(ss, artists[i])
+				}
+
+			}
+
+		}
+	} else if types == "Members" {
+		for i := range artists {
+			for j := range artists[i].Members {
+				if strings.HasPrefix(strings.ToLower(artists[i].Members[j]), text) {
 					ss = append(ss, artists[i])
 				}
 			}
 		}
-	} else {
-		if types == "Band" {
-			for i := range artists {
-				if strings.HasPrefix(strings.ToLower(artists[i].Name), text) {
-					ss = append(ss, artists[i])
-				}
-			}
-		} else if types == "firstalbum" || types == "creation" {
-			if types == "firstalbum" {
-				for i := range artists {
-					temp := strings.Split(artists[i].FirstAlbum, "-")
-					val, _ := strconv.Atoi(temp[len(temp)-1])
-					val2, _ := strconv.Atoi(text)
-
-					fmt.Println("first album check false")
-
-					if val >= val2 {
-						ss = append(ss, artists[i])
-					}
-
-				}
-			}
-			if types == "creation" {
-				val, _ := strconv.Atoi(text)
-				for i := range artists {
-
-					fmt.Println(val)
-					if val <= artists[i].CreationDate {
-						ss = append(ss, artists[i])
-					}
-
-				}
-
-			}
-		} else if types == "Members" {
-			for i := range artists {
-
-				for j := range artists[i].Members {
-					if strings.HasPrefix(strings.ToLower(artists[i].Members[j]), text) {
-						ss = append(ss, artists[i])
-					}
-				}
-
-			}
-		} else if types == "location" {
-			for i := range locals.Index {
-				for j := range locals.Index[i].Location {
-					if strings.Contains(strings.ToLower(locals.Index[i].Location[j]), text) {
-						if len(ss) == 0 {
-							ss = append(ss, artists[locals.Index[i].Id-1])
-						} else {
-							var checkrepitition bool
-							for k := range ss {
-								if ss[k].ID == locals.Index[i].Id {
-									checkrepitition = true
-								} else {
-									checkrepitition = false
-								}
-							}
-							if !checkrepitition {
-								ss = append(ss, artists[locals.Index[i].Id-1])
+	} else if types == "location" {
+		for i := range locals.Index {
+			for j := range locals.Index[i].Location {
+				if strings.Contains(strings.ToLower(locals.Index[i].Location[j]), text) {
+					if len(ss) == 0 {
+						ss = append(ss, artists[locals.Index[i].Id-1])
+					} else {
+						var checkrepitition bool
+						for k := range ss {
+							if ss[k].ID == locals.Index[i].Id {
+								checkrepitition = true
+							} else {
+								checkrepitition = false
 							}
 						}
-
+						if !checkrepitition {
+							ss = append(ss, artists[locals.Index[i].Id-1])
+						}
 					}
 				}
 			}
@@ -333,9 +265,174 @@ func SearchPage(w http.ResponseWriter, r *http.Request) {
 		tmpl1.Execute(w, Error)
 		return
 	}
-	fmt.Println(ss)
 
 	tmpl.Execute(w, ss)
+}
+
+func FilterHandler(w http.ResponseWriter, r *http.Request) {
+	tmpl, err := template.ParseFiles("./templates/search.html")
+	tmpl1, err1 := template.ParseFiles("templates/errors.html")
+	if err != nil || err1 != nil {
+		if err1 != nil {
+			http.Error(w, "Internal Server Error", 500)
+			return
+		} else {
+			ChooseError(w, 500)
+			tmpl1.Execute(w, Error)
+			return
+		}
+	}
+	if r.Method != http.MethodPost {
+		ChooseError(w, 405)
+		tmpl1.Execute(w, Error)
+		return
+	}
+	err = r.ParseForm()
+	if err != nil {
+		ChooseError(w, 500)
+		tmpl1.Execute(w, Error)
+		return
+	}
+	members_checked := r.Form["member-radio"]
+	Dates_range := r.Form["creation"]
+	type_filter := r.FormValue("type_filtre")
+	text := strings.ToLower(r.FormValue("filter_input"))
+	min_date, err1 := strconv.Atoi(Dates_range[0])
+	max_date, err2 := strconv.Atoi(Dates_range[1])
+	if err1 != nil || err2 != nil {
+		ChooseError(w, 400)
+		tmpl1.Execute(w, Error)
+		return
+	}
+	var min_mem, max_mem, check int
+	if len(members_checked) == 0 && (min_date == 1958 && max_date == 2018) && len(text) == 0 {
+		ChooseError(w, 400)
+		tmpl1.Execute(w, Error)
+		return
+	} else {
+		if len(members_checked) == 0 {
+			min_mem = 1
+			max_mem = 8
+			check = 1
+		} else if len(members_checked) == 1 {
+			temp, err3 := strconv.Atoi(members_checked[0])
+			if err3 != nil {
+				ChooseError(w, 400)
+				tmpl1.Execute(w, Error)
+				return
+			}
+			min_mem = temp
+			max_mem = temp
+			check = 2
+		} else {
+			temp1, err3 := strconv.Atoi(members_checked[0])
+			temp2, err4 := strconv.Atoi(members_checked[len(members_checked)-1])
+			if err3 != nil || err4 != nil {
+				ChooseError(w, 400)
+				tmpl1.Execute(w, Error)
+				return
+			}
+			min_mem = temp1
+			max_mem = temp2
+			check = 2
+		}
+	}
+	if len(text) != 0 {
+		check = 3
+	}
+
+	var ff []Artist
+
+	if check <= 2 && check > 0 {
+		for i := range artists {
+			if type_filter == "creation" {
+				if artists[i].CreationDate >= min_date && artists[i].CreationDate <= max_date {
+					if check == 2 {
+						if len(artists[i].Members) >= min_mem && len(artists[i].Members) <= max_mem {
+							ff = append(ff, artists[i])
+						}
+					} else {
+						ff = append(ff, artists[i])
+					}
+				}
+			} else if type_filter == "firstalbum" {
+				sli := strings.Split(artists[i].FirstAlbum, "-")
+				temp, err := strconv.Atoi(sli[len(sli)-1])
+				if err != nil {
+					ChooseError(w, 400)
+					tmpl1.Execute(w, Error)
+					return
+				}
+				if temp >= min_date && temp <= max_date {
+					if check == 2 {
+						if len(artists[i].Members) >= min_mem && len(artists[i].Members) <= max_mem {
+							ff = append(ff, artists[i])
+						}
+					} else {
+						ff = append(ff, artists[i])
+					}
+				}
+			} else if type_filter == "both" {
+				sli := strings.Split(artists[i].FirstAlbum, "-")
+				temp, err := strconv.Atoi(sli[len(sli)-1])
+				if err != nil {
+					ChooseError(w, 400)
+					tmpl1.Execute(w, Error)
+					return
+				}
+				if temp >= min_date && temp <= max_date && artists[i].CreationDate >= min_date && artists[i].CreationDate <= max_date {
+					if check == 2 {
+						if len(artists[i].Members) >= min_mem && len(artists[i].Members) <= max_mem {
+							ff = append(ff, artists[i])
+						}
+					} else {
+						ff = append(ff, artists[i])
+					}
+				}
+			} else {
+				if len(artists[i].Members) >= min_mem && len(artists[i].Members) <= max_mem {
+					ff = append(ff, artists[i])
+				}
+			}
+		}
+	} else if check == 3 {
+		sli := strings.Split(text, " ")
+		if len(sli) == 2 {
+			text = sli[0]
+		} else if len(sli) == 3 {
+			text = sli[1]
+		}
+		var tf string
+		for _, char := range text {
+			if char >= 'a' && char <= 'z' {
+				tf += string(char)
+			}
+		}
+		text = tf
+
+		for i := range locals.Index {
+			for j := range locals.Index[i].Location {
+				if strings.Contains(strings.ToLower(locals.Index[i].Location[j]), text) {
+					fmt.Println("1")
+					fmt.Println(artists[locals.Index[i].Id-1].Name)
+					if artists[locals.Index[i].Id-1].CreationDate >= min_date && artists[locals.Index[i].Id-1].CreationDate <= max_date {
+						fmt.Println("2")
+						fmt.Println(artists[locals.Index[i].Id-1].Name)
+
+						if len(artists[locals.Index[i].Id-1].Members) >= min_mem && len(artists[locals.Index[i].Id-1].Members) <= max_mem {
+							fmt.Println("3")
+							fmt.Println(artists[locals.Index[i].Id-1].Name)
+
+							ff = append(ff, artists[locals.Index[i].Id-1])
+						}
+					}
+				}
+			}
+		}
+
+	}
+
+	tmpl.Execute(w, ff)
 }
 
 func ChooseError(w http.ResponseWriter, code int) {

@@ -59,6 +59,82 @@ strong{
     /* background-color: rgba(255, 255, 255, 0.144); */
 }
 
+.ff{
+    position: relative;
+    width: 300px;
+    height: 5px;
+}
+
+.range-min{
+    position: absolute;
+    appearance: none;
+    background: none;
+    pointer-events: none;
+    top: -6px;
+    width: 100%;
+    left: 0;
+    margin: 0;
+}
+
+.range-max{
+    appearance: none;
+    background: none;
+    position: absolute;
+    pointer-events: none;
+    top: -7px;
+    width: 100%;
+    left: 0;
+    margin: 0;
+}
+
+.prog{
+    height: 100%;
+    background-color: rgb(39, 160, 190);
+    left: 10px;
+    right: 5px;
+    position: absolute;
+}
+
+.range-max::-webkit-slider-thumb{
+    height: 17px;
+    width: 17px;
+    border-radius: 50%;
+    background: red;
+    pointer-events: auto;
+    -webkit-appearance: none;
+    box-shadow: 0 0 6px rgba(0,0,0,0.05);
+}
+.range-max::-moz-range-thumb{
+    height: 17px;
+    width: 17px;
+    border: none;
+    border-radius: 50%;
+    background: red;
+    pointer-events: auto;
+    -moz-appearance: none;
+    box-shadow: 0 0 6px rgba(0,0,0,0.05);
+}
+
+.range-min::-webkit-slider-thumb{
+    height: 17px;
+    width: 17px;
+    border-radius: 50%;
+    background: red;
+    pointer-events: auto;
+    -webkit-appearance: none;
+    box-shadow: 0 0 6px rgba(0,0,0,0.05);
+}
+.range-min::-moz-range-thumb{
+    height: 17px;
+    width: 17px;
+    border: none;
+    border-radius: 50%;
+    background: red;
+    pointer-events: auto;
+    -moz-appearance: none;
+    box-shadow: 0 0 6px rgba(0,0,0,0.05);
+}
+
 /* .search{
     display: inline;
     justify-content: space-around;
@@ -74,8 +150,12 @@ strong{
     width: 30%;
 }
 
+.filter-input{
+    width: 30%;
+}
+
 .range{
-    display: flexx;
+    display: flex;
 }
 
 /* .memm{
@@ -84,6 +164,17 @@ strong{
 } */
 
 .suggestions {
+    border: 1px solid rgb(0, 0, 0);
+    max-height: 150px;
+    overflow-y: auto;
+    position: absolute;
+    background-color: white;
+    width: fit-content;
+    z-index: 1;
+    /* margin-top: 30px; */
+}
+
+.suggestions_filter {
     border: 1px solid rgb(0, 0, 0);
     max-height: 150px;
     overflow-y: auto;
